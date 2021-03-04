@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="email=no" name="format-detection">
+  <meta content="telephone=no" name="format-detection">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta content="yes" name="apple-mobile-web-app-capable">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta content="black" name="apple-mobile-web-app-status-bar-style">
+  <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+  <link rel="shortcut icon" href="https://www.tyfo.com/market/content/home_image/favicon.ico" type="image/x-icon"/>
+  <title>vue 海报插件</title>
+  <link rel="stylesheet" href="https://www.tyfo.com/common/js/tui.css">
+  <script src="https://www.tyfo.com/common/js/tui.js"></script>
+  <script src="https://www.tyfo.com/common/js/jquery.js"></script>
+  <script src="https://m.tyfo.com/wap/js/myjs/vue.js"></script>
+  <style>
+    #app{font-family: '微软雅黑';}
+    .rui-layer-mark{
+      width: 100%;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.7);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+    .rui-layer-content{
+      border-radius: 0.15rem;
+      overflow: hidden;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+    }
+    .rui-poster-content{
+      border-radius: 0.15rem;
+      overflow: hidden;
+    }
+    .rui-poster-text{
+      color: #fff;
+      font-size: 0.28rem;
+      text-align: center;
+      line-height: 0.4rem;
+      margin-top: 0.3rem;
+    }
+    .rui-create-poster{
+      color: #fff;
+      font-size: 0.3rem;
+      width: 7rem;
+      height: 0.8rem;
+      display: -webkit-flex;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.5rem;
+      background-color: #2ed39e;
+      margin: 0.3rem auto;
+    }
+    .rui-edit-poster-content{
+      width: 7rem;
+      border-radius: 0.15rem;
+      overflow: hidden;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+    .rui-text-area{
+      border: none;
+      outline: none;
+      width: calc(100% - 0.6rem);
+      font-size: 0.3rem;
+      line-height: 0.45rem;
+      resize: none;
+      margin: 0.3rem;
+      font-family: '微软雅黑';
+    }
+    .rui-text-len{
+      font-size: 0.2rem;
+      position: absolute;
+      bottom: 0.1rem;
+      right:0.1rem;
+    }
+    .rui-change-img{
+      color: #fff;
+      font-size: 0.3rem;
+      position: absolute;
+      top: 0.2rem;
+      right: 0.2rem;
+    }
+    .rui-head-container{
+      height: 0.9rem;
+      font-size: 0.4rem;
+      width: 100%;
+      background-color: #fff;
+      display: -webkit-flex;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="tui-content" id="app">
+    <div>
+      <div class="rui-head-container">海报效果</div>
+      <div class="rui-edit-poster-content">
+        <div class="rui-change-img" @click="changeImg()">换一张</div>
+        <img :src="posters[index].imgurl" class="tui-full" alt="">
+        <textarea class="rui-text-area" maxlength="36" v-model="posters[index].text"></textarea>
+        <div class="rui-text-len">{{posters[index].text.length}}/36</div>
+      </div>
+      <div class="rui-create-poster" @click="showPopup()">点击生成海报去分享</div>
+    </div>
+    <div class="rui-layer-mark" v-show="popupshow" @click="popupshow=false">
+      <div class="rui-layer-content" @click.stop="stop()">
+        <div class="rui-poster-content">
+          <rui-vue-poster :posterinfos="posterInfos" :scale="500" @success="success"></rui-vue-poster>
+        </div>
+        <div class="rui-poster-text">长按图片3秒可直接分享好友，与好友共享此刻心情或保存至手机</div>
+      </div>
+    </div>
+  </div>
+  <script src="./js/rui-vue-poster.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data:{
+        popupshow: false,
+        posterInfos: {},
+        index: 0,
+        posters: [
+          {
+            imgurl: './images/imgfengjing1.jpg',
+            text: '一个背包，几本书，所有喜欢的歌，一张单程车票，一颗潇洒的心。'
+          },
+          {
+            imgurl: './images/imgfengjing2.jpg',
+            text: '下一站，家。'
+          },
+          {
+            imgurl: './images/imgfengjing3.jpg',
+            text: '在路上，永远年轻，永远热泪盈眶。'
+          },
+        ]
+      },
+      mounted() {
+        // this.canvas();
+      },
+      methods: {
+        showPopup(){
+          this.popupshow = true; 
+          this.canvasDataInit();
+        },
+        changeImg(){
+          if(this.index < this.posters.length - 1){
+            this.index += 1;
+          } else {
+            this.index = 0;
+          }
+        },
+        stop(){
+          this.posterInfos = {};
+          return false;
+        },
+        success(canvas) {
+          this.canvas = canvas;
+        },
+        downImage() {
+          let imgUrl = this.canvas.toDataURL('image/png');
+          console.log(imgUrl)
+        },
+        // 海报数据
+        canvasDataInit() {
+          let shareInfos = {
+            width: 400,
+            height: 485,
+            backgroundColor: '#fff',
+            views: [{
+                type: 'image',
+                url: this.posters[this.index].imgurl,
+                css: {
+                  top: 0,
+                  left: 0,
+                  width: 400,
+                  height: 400
+                },
+                list: [
+                  {
+                    type: 'text',
+                    text: this.posters[this.index].text,
+                    css: {
+                      color: '#ffffff',
+                      lineHeight: 32,
+                      maxLines: 2,
+                      textAlign: 'left',
+                      width: 360,
+                      fontSize: 20,
+                      top: 345,
+                      left: 20
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'image',
+                url: './images/qrcode.jpg',
+                css: {
+                  top: 413,
+                  left: 20,
+                  width: 60,
+                  height: 60
+                }
+              },
+              {
+                type: 'text',
+                text: `长按识别二维码，在[WX-RUI]体验更多效果`,
+                css: {
+                  color: '#222222',
+                  lineHeight: 32,
+                  maxLines: 1,
+                  textAlign: 'left',
+                  width: 280,
+                  fontSize: 13,
+                  top: 435,
+                  left: 100
+                }
+              },
+              {
+                type: 'text',
+                text: `再体验，在[WX-RUI]`,
+                css: {
+                  color: '#222222',
+                  lineHeight: 32,
+                  maxLines: 1,
+                  textAlign: 'left',
+                  width: 280,
+                  fontSize: 16,
+                  top: 460,
+                  left: 100
+                }
+              }
+            ]
+          };
+          this.posterInfos = shareInfos;
+        }
+      }
+    })
+  </script>
+</body>
+</html>
